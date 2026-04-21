@@ -3,17 +3,16 @@ import SwiftUI
 struct PathwayView: View {
     let completedDays = 4
     let totalDays = 30
-    let trackWidth: CGFloat = 320
-    let stepY: CGFloat = 62
+    let trackWidth: CGFloat = 340
+    let stepY: CGFloat = 70
     
     @State private var selectedDay: Int? = nil
     
-    // Multi-frequency offset for natural winding path
     func stoneOffset(for day: Int) -> CGFloat {
         let index = Double(totalDays - day)
-        let a = sin(index * 0.5) * 75
-        let b = cos(index * 0.85) * 32
-        let c = sin(index * 1.45) * 14
+        let a = sin(index * 0.55 + 1.3) * 90
+        let b = cos(index * 0.95 + 0.4) * 40
+        let c = sin(index * 1.7 + 2.2) * 18
         return CGFloat(a + b + c)
     }
     
@@ -29,7 +28,6 @@ struct PathwayView: View {
                 ScrollViewReader { proxy in
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 0) {
-                            // Header
                             PathwayHeader(
                                 title: "The Gateless Gate",
                                 completedDays: completedDays,
@@ -39,8 +37,7 @@ struct PathwayView: View {
                             .padding(.top, Space.xxxl)
                             .padding(.bottom, Space.section)
                             
-                            // Zen Garden Track
-                            ZenGardenTrack(
+                            ZenGarden(
                                 totalDays: totalDays,
                                 completedDays: completedDays,
                                 trackWidth: trackWidth,
@@ -48,9 +45,7 @@ struct PathwayView: View {
                                 stoneOffset: stoneOffset,
                                 isMilestone: isMilestone,
                                 onSelectDay: { day in
-                                    if day <= completedDays {
-                                        selectedDay = day
-                                    }
+                                    if day <= completedDays { selectedDay = day }
                                 }
                             )
                             .padding(.horizontal, Space.screenEdge)
@@ -78,7 +73,7 @@ struct PathwayView: View {
     }
 }
 
-// MARK: - Header with Progress Ring
+// MARK: - Header
 
 struct PathwayHeader: View {
     let title: String
@@ -102,10 +97,7 @@ struct PathwayHeader: View {
                 
                 Circle()
                     .trim(from: 0, to: progress)
-                    .stroke(
-                        Color.sumiInk,
-                        style: StrokeStyle(lineWidth: 10, lineCap: .round)
-                    )
+                    .stroke(Color.sumiInk, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                     .frame(width: 120, height: 120)
                     .rotationEffect(.degrees(-90))
                 
@@ -123,9 +115,9 @@ struct PathwayHeader: View {
     }
 }
 
-// MARK: - Zen Garden Track
+// MARK: - Zen Garden
 
-struct ZenGardenTrack: View {
+struct ZenGarden: View {
     let totalDays: Int
     let completedDays: Int
     let trackWidth: CGFloat
@@ -135,34 +127,46 @@ struct ZenGardenTrack: View {
     let onSelectDay: (Int) -> Void
     
     private var centerX: CGFloat { trackWidth / 2 }
-    private var trackHeight: CGFloat { CGFloat(totalDays - 1) * stepY + 80 }
+    private var trackHeight: CGFloat { CGFloat(totalDays - 1) * stepY + 100 }
     
     var body: some View {
         ZStack {
-            // Background decorations (pebbles, sand ripples)
-            GardenDecorations(trackWidth: trackWidth, trackHeight: trackHeight)
+            // Sand garden background
+            RoundedRectangle(cornerRadius: 28)
+                .fill(Color.sumiParchment.opacity(0.6))
+                .frame(width: trackWidth, height: trackHeight)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28)
+                        .stroke(Color.sumiBorder, lineWidth: 1)
+                )
             
-            // Connecting path (drawn behind stones)
-            GardenPath(
-                totalDays: totalDays,
-                completedDays: completedDays,
-                centerX: centerX,
-                stepY: stepY,
-                stoneOffset: stoneOffset
-            )
+            // Moss patches
+            MossPatch(x: 30, y: 200, size: 45)
+            MossPatch(x: trackWidth - 40, y: 480, size: 55)
+            MossPatch(x: 45, y: 800, size: 40)
+            MossPatch(x: trackWidth - 35, y: 1150, size: 50)
+            MossPatch(x: 35, y: 1500, size: 42)
             
-            // Stones and labels
+            // Scattered gravel
+            ForEach(0..<20) { i in
+                GravelPebble(
+                    x: gravelPositions[i].x,
+                    y: gravelPositions[i].y,
+                    size: gravelPositions[i].size
+                )
+            }
+            
+            // Stepping stones
             ForEach((1...totalDays).reversed(), id: \.self) { day in
                 let index = totalDays - day
-                let y = CGFloat(index) * stepY + 36
+                let y = CGFloat(index) * stepY + 44
                 let offset = stoneOffset(day)
                 let x = centerX + offset
                 let completed = day <= completedDays
                 let current = day == completedDays + 1
                 let milestone = isMilestone(day)
                 
-                // Zen Stone
-                ZenStone(
+                SteppingStone(
                     day: day,
                     isCompleted: completed,
                     isCurrent: current,
@@ -172,170 +176,94 @@ struct ZenGardenTrack: View {
                 .onTapGesture { onSelectDay(day) }
                 .id(day)
                 
-                // Milestone label
                 if milestone {
                     MilestoneTag(
-                        day: day,
-                        totalDays: totalDays,
-                        isCompleted: completed,
-                        isCurrent: current
+                        day: day, totalDays: totalDays,
+                        isCompleted: completed, isCurrent: current
                     )
                     .position(
-                        x: x + (offset > 8 ? -78 : (offset < -8 ? 78 : 78)),
+                        x: x + (offset > 10 ? -82 : (offset < -10 ? 82 : 82)),
                         y: y
                     )
                 }
                 
-                // Current badge
                 if current && !milestone {
                     CurrentTag()
                         .position(
-                            x: x + (offset > 0 ? -68 : 68),
+                            x: x + (offset > 0 ? -72 : 72),
                             y: y
                         )
                 }
             }
             
-            // Entrance label at bottom
+            // Entrance gate at bottom
             VStack(spacing: 4) {
-                Image(systemName: "arrow.down")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.sumiQuaternaryText)
+                HStack(spacing: 12) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.sumiSand)
+                        .frame(width: 4, height: 24)
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.sumiSand)
+                        .frame(width: 4, height: 24)
+                }
                 Text("Entrance")
                     .sumiTextStyle(.caption2)
                     .foregroundColor(.sumiQuaternaryText)
             }
-            .position(x: centerX + stoneOffset(1), y: trackHeight - 24)
+            .position(x: centerX + stoneOffset(1), y: trackHeight - 32)
         }
         .frame(width: trackWidth, height: trackHeight)
     }
-}
-
-// MARK: - Garden Decorations
-
-struct GardenDecorations: View {
-    let trackWidth: CGFloat
-    let trackHeight: CGFloat
     
-    var body: some View {
-        ZStack {
-            // Scattered pebbles
-            Pebble(x: 40, y: 180, size: 8, opacity: 0.25)
-            Pebble(x: trackWidth - 35, y: 260, size: 6, opacity: 0.2)
-            Pebble(x: 55, y: 420, size: 10, opacity: 0.22)
-            Pebble(x: trackWidth - 50, y: 540, size: 7, opacity: 0.18)
-            Pebble(x: 35, y: 720, size: 9, opacity: 0.24)
-            Pebble(x: trackWidth - 40, y: 850, size: 6, opacity: 0.2)
-            Pebble(x: 60, y: 980, size: 8, opacity: 0.22)
-            Pebble(x: trackWidth - 45, y: 1120, size: 7, opacity: 0.18)
-            Pebble(x: 45, y: 1280, size: 9, opacity: 0.24)
-            Pebble(x: trackWidth - 55, y: 1380, size: 6, opacity: 0.2)
-            
-            // Subtle sand ripples (very faint arcs)
-            Ripple(x: trackWidth/2, y: 300, width: 260, opacity: 0.06)
-            Ripple(x: trackWidth/2, y: 700, width: 280, opacity: 0.05)
-            Ripple(x: trackWidth/2, y: 1100, width: 250, opacity: 0.06)
-            Ripple(x: trackWidth/2, y: 1500, width: 270, opacity: 0.05)
-        }
+    private var gravelPositions: [(x: CGFloat, y: CGFloat, size: CGFloat)] {
+        [
+            (50, 120, 5), (280, 180, 4), (40, 340, 6), (290, 400, 5),
+            (55, 560, 4), (270, 620, 6), (45, 780, 5), (285, 840, 4),
+            (60, 950, 6), (275, 1020, 5), (50, 1180, 4), (290, 1250, 5),
+            (40, 1380, 6), (280, 1420, 4), (55, 1580, 5), (270, 1620, 6),
+            (48, 1780, 4), (285, 1820, 5), (52, 1950, 6), (278, 1980, 4)
+        ]
     }
 }
 
-struct Pebble: View {
+// MARK: - Decorations
+
+struct MossPatch: View {
     let x: CGFloat
     let y: CGFloat
     let size: CGFloat
-    let opacity: Double
-    
-    var body: some View {
-        Ellipse()
-            .fill(Color.sumiSand.opacity(opacity))
-            .frame(width: size, height: size * 0.85)
-            .rotationEffect(.degrees(Double.random(in: -30...30)))
-            .position(x: x, y: y)
-    }
-}
-
-struct Ripple: View {
-    let x: CGFloat
-    let y: CGFloat
-    let width: CGFloat
-    let opacity: Double
-    
-    var body: some View {
-        Ellipse()
-            .stroke(Color.sumiSand.opacity(opacity), lineWidth: 1)
-            .frame(width: width, height: width * 0.35)
-            .position(x: x, y: y)
-    }
-}
-
-// MARK: - Garden Path
-
-struct GardenPath: View {
-    let totalDays: Int
-    let completedDays: Int
-    let centerX: CGFloat
-    let stepY: CGFloat
-    let stoneOffset: (Int) -> CGFloat
     
     var body: some View {
         ZStack {
-            // Full trail (dashed, subtle)
-            Path { path in
-                addPoints(to: &path, days: (1...totalDays).reversed())
-            }
-            .stroke(
-                Color.sumiSand.opacity(0.5),
-                style: StrokeStyle(lineWidth: 2, dash: [3, 5])
-            )
-            
-            // Walked trail (solid, darker)
-            if completedDays > 0 {
-                Path { path in
-                    addPoints(to: &path, days: (1...completedDays).reversed())
-                }
-                .stroke(Color.sumiInk.opacity(0.22), lineWidth: 3)
-            }
-            
-            // Current step highlight (persimmon glow line from last completed to current)
-            if completedDays < totalDays {
-                Path { path in
-                    let fromDay = completedDays + 1
-                    let toDay = completedDays
-                    let fromIndex = totalDays - fromDay
-                    let toIndex = totalDays - toDay
-                    let fromY = CGFloat(fromIndex) * stepY + 36
-                    let toY = CGFloat(toIndex) * stepY + 36
-                    let fromX = centerX + stoneOffset(fromDay)
-                    let toX = centerX + stoneOffset(toDay)
-                    path.move(to: CGPoint(x: fromX, y: fromY))
-                    path.addLine(to: CGPoint(x: toX, y: toY))
-                }
-                .stroke(Color.sumiPersimmon.opacity(0.35), lineWidth: 3)
-            }
+            Circle()
+                .fill(Color.sumiMatcha.opacity(0.08))
+                .frame(width: size, height: size)
+            Circle()
+                .fill(Color.sumiMatcha.opacity(0.06))
+                .frame(width: size * 0.7, height: size * 0.7)
+                .offset(x: 3, y: -2)
         }
-    }
-    
-    func addPoints(to path: inout Path, days: ReversedCollection<ClosedRange<Int>>) {
-        var first = true
-        for day in days {
-            let index = totalDays - day
-            let y = CGFloat(index) * stepY + 36
-            let x = centerX + stoneOffset(day)
-            let point = CGPoint(x: x, y: y)
-            if first {
-                path.move(to: point)
-                first = false
-            } else {
-                path.addLine(to: point)
-            }
-        }
+        .position(x: x, y: y)
     }
 }
 
-// MARK: - Zen Stone
+struct GravelPebble: View {
+    let x: CGFloat
+    let y: CGFloat
+    let size: CGFloat
+    
+    var body: some View {
+        Ellipse()
+            .fill(Color.sumiClay.opacity(0.25))
+            .frame(width: size, height: size * 0.8)
+            .rotationEffect(.degrees(Double.random(in: -40...40)))
+            .position(x: x, y: y)
+    }
+}
 
-struct ZenStone: View {
+// MARK: - Stepping Stone (Irregular organic shape)
+
+struct SteppingStone: View {
     let day: Int
     let isCompleted: Bool
     let isCurrent: Bool
@@ -345,35 +273,51 @@ struct ZenStone: View {
     
     var body: some View {
         ZStack {
-            // Pulse glow for current
+            // Ambient glow for current
             if isCurrent {
-                Ellipse()
+                IrregularStoneShape(seed: day + 100)
                     .fill(Color.sumiPersimmon.opacity(0.12))
-                    .frame(width: 78, height: 70)
+                    .frame(width: stoneW + 22, height: stoneH + 18)
                     .scaleEffect(pulseScale)
             }
             
-            // Milestone outer ring
+            // Milestone torii-style ring
             if isMilestone {
-                Ellipse()
-                    .stroke(milestoneRingColor, lineWidth: 2)
-                    .frame(width: stoneWidth + 12, height: stoneHeight + 10)
-                    .rotationEffect(.degrees(rotation))
+                IrregularStoneShape(seed: day + 50)
+                    .stroke(milestoneRingColor, lineWidth: 2.5)
+                    .frame(width: stoneW + 14, height: stoneH + 12)
             }
             
-            // Main stone (irregular ellipse)
-            Ellipse()
-                .fill(stoneFill)
-                .frame(width: stoneWidth, height: stoneHeight)
-                .rotationEffect(.degrees(rotation))
-                .overlay(
-                    Ellipse()
-                        .stroke(stoneStroke, lineWidth: stoneStrokeWidth)
-                        .rotationEffect(.degrees(rotation))
-                )
-                .shadow(color: shadowColor, radius: shadowRadius, x: 0, y: shadowY)
+            // Stone body with 3D effect
+            ZStack {
+                // Bottom shadow (stone sitting in sand)
+                IrregularStoneShape(seed: day)
+                    .fill(Color.sumiInk.opacity(0.06))
+                    .frame(width: stoneW + 2, height: stoneH + 2)
+                    .offset(y: 2)
+                
+                // Main stone surface
+                IrregularStoneShape(seed: day)
+                    .fill(stoneFill)
+                    .frame(width: stoneW, height: stoneH)
+                
+                // Top highlight for 3D depth
+                IrregularStoneShape(seed: day)
+                    .fill(Color.white.opacity(highlightOpacity))
+                    .frame(width: stoneW * 0.55, height: stoneH * 0.35)
+                    .offset(x: -stoneW * 0.08, y: -stoneH * 0.12)
+                    .blendMode(.overlay)
+                
+                // Bottom shade
+                IrregularStoneShape(seed: day)
+                    .fill(Color.black.opacity(shadeOpacity))
+                    .frame(width: stoneW * 0.7, height: stoneH * 0.4)
+                    .offset(x: stoneW * 0.05, y: stoneH * 0.15)
+                    .blendMode(.multiply)
+            }
+            .shadow(color: shadowColor, radius: shadowRadius, x: 0, y: shadowY)
             
-            // Content (not rotated, stays upright)
+            // Content
             Group {
                 if isCompleted {
                     Image(systemName: "checkmark")
@@ -389,78 +333,116 @@ struct ZenStone: View {
                         .foregroundColor(.sumiTertiaryText)
                 }
             }
-            .offset(y: isCurrent ? 0 : 0) // ensures text is centered
         }
-        .frame(width: 70, height: 70) // tap target
+        .frame(width: max(stoneW, stoneH) + 24, height: max(stoneW, stoneH) + 24)
         .contentShape(Rectangle())
         .onAppear {
             if isCurrent {
-                withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
-                    pulseScale = 1.25
+                withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                    pulseScale = 1.3
                 }
             }
         }
     }
     
-    var stoneWidth: CGFloat {
-        if isCurrent { return 58 }
-        if isCompleted { return 44 }
-        return 36
+    var stoneW: CGFloat {
+        if isCurrent { return 60 }
+        if isCompleted { return 46 }
+        return 38
     }
     
-    var stoneHeight: CGFloat {
+    var stoneH: CGFloat {
         if isCurrent { return 50 }
-        if isCompleted { return 38 }
-        return 30
-    }
-    
-    var rotation: Double {
-        // Each stone has a slightly different tilt, like real stepping stones
-        Double((day * 7) % 5) * 10 - 20
+        if isCompleted { return 40 }
+        return 32
     }
     
     var stoneFill: Color {
-        if isCompleted { return .sumiInk }
-        if isCurrent { return .sumiPersimmon }
-        return .sumiCardSurface
-    }
-    
-    var stoneStroke: Color {
-        if isCompleted || isCurrent { return .clear }
-        return .sumiSand
-    }
-    
-    var stoneStrokeWidth: CGFloat {
-        if isCompleted || isCurrent { return 0 }
-        return 1.5
+        if isCompleted {
+            return Color.sumiInk
+        }
+        if isCurrent {
+            return Color.sumiPersimmon
+        }
+        return Color.sumiCardSurface
     }
     
     var milestoneRingColor: Color {
-        if isCompleted { return .sumiMatcha.opacity(0.45) }
-        if isCurrent { return .sumiPersimmon.opacity(0.45) }
-        return .sumiSand
+        if isCompleted { return Color.sumiMatcha.opacity(0.5) }
+        if isCurrent { return Color.sumiPersimmon.opacity(0.5) }
+        return Color.sumiSand
+    }
+    
+    var highlightOpacity: Double {
+        if isCompleted { return 0.08 }
+        if isCurrent { return 0.12 }
+        return 0.15
+    }
+    
+    var shadeOpacity: Double {
+        if isCompleted { return 0.15 }
+        if isCurrent { return 0.12 }
+        return 0.06
     }
     
     var shadowColor: Color {
-        if isCurrent { return .sumiPersimmon.opacity(0.28) }
-        if isCompleted { return .sumiInk.opacity(0.14) }
-        return .sumiInk.opacity(0.06)
+        if isCurrent { return Color.sumiPersimmon.opacity(0.22) }
+        if isCompleted { return Color.sumiInk.opacity(0.18) }
+        return Color.sumiInk.opacity(0.08)
     }
     
     var shadowRadius: CGFloat {
-        if isCurrent { return 14 }
-        if isCompleted { return 10 }
-        return 5
+        if isCurrent { return 12 }
+        if isCompleted { return 8 }
+        return 4
     }
     
     var shadowY: CGFloat {
-        if isCurrent { return 8 }
-        if isCompleted { return 5 }
-        return 3
+        if isCurrent { return 6 }
+        if isCompleted { return 4 }
+        return 2
     }
 }
 
-// MARK: - Milestone Tag
+// MARK: - Irregular Stone Shape
+
+struct IrregularStoneShape: Shape {
+    let seed: Int
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let cx = rect.midX
+        let cy = rect.midY
+        let rx = rect.width / 2
+        let ry = rect.height / 2
+        let points = 10
+        
+        var vertices: [CGPoint] = []
+        for i in 0..<points {
+            let angle = Double(i) * 2 * .pi / Double(points) - .pi / 2
+            // Deterministic "randomness" based on seed
+            let variance = 0.18 * sin(Double(seed + i * 7) * 0.87)
+            let rxi = rx * (1.0 + variance)
+            let ryi = ry * (1.0 + variance * 0.7)
+            let x = cx + cos(angle) * rxi
+            let y = cy + sin(angle) * ryi
+            vertices.append(CGPoint(x: x, y: y))
+        }
+        
+        // Smooth through vertices using catmull-rom-like curves
+        path.move(to: vertices[0])
+        for i in 0..<points {
+            let curr = vertices[i]
+            let next = vertices[(i + 1) % points]
+            let mid = CGPoint(x: (curr.x + next.x) / 2, y: (curr.y + next.y) / 2)
+            path.addQuadCurve(to: mid, control: curr)
+        }
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - Tags
 
 struct MilestoneTag: View {
     let day: Int
@@ -485,7 +467,6 @@ struct MilestoneTag: View {
                     .font(.system(size: 10))
                     .foregroundColor(.sumiPersimmon)
             }
-            
             Text(label)
                 .sumiTextStyle(.caption)
                 .foregroundColor(tagColor)

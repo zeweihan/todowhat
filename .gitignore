@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Sensitive credentials (already leaked in history — rotate these!)
+supabase/supabase.env
+ios-app/Sumi/Sumi/Core/Networking/Secrets.swift
+
+# Xcode
+build/
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+
+# Logs
+*.log

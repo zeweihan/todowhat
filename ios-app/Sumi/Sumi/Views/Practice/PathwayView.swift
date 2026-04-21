@@ -30,6 +30,7 @@ struct PathwayView: View {
                                     PathwayStep(
                                         day: day,
                                         totalDays: totalDays,
+                                        completedDays: completedDays,
                                         isCompleted: day <= completedDays,
                                         isCurrent: day == completedDays + 1
                                     )
@@ -119,6 +120,7 @@ struct PathwayHeader: View {
 struct PathwayStep: View {
     let day: Int
     let totalDays: Int
+    let completedDays: Int
     let isCompleted: Bool
     let isCurrent: Bool
     

@@ -32,6 +32,7 @@ struct PathwayView: View {
                         ForEach((1...totalDays).reversed(), id: \.self) { day in
                             PathwayNode(
                                 day: day,
+                                totalDays: totalDays,
                                 isCompleted: day <= completedDays,
                                 isCurrent: day == completedDays + 1,
                                 offset: CGFloat(sin(Double(day) * 0.8) * 60),
@@ -65,6 +66,7 @@ struct PathwayDayIdentifier: Identifiable {
 
 struct PathwayNode: View {
     let day: Int
+    let totalDays: Int
     let isCompleted: Bool
     let isCurrent: Bool
     let offset: CGFloat
@@ -121,7 +123,7 @@ struct PathwayNode: View {
                             .sumiTextStyle(.caption)
                             .foregroundColor(isCompleted ? .sumiPrimaryText : .sumiTertiaryText)
                         
-                        if day == completedDays + 1 {
+                        if isCurrent {
                             Text("Current")
                                 .sumiTextStyle(.caption2)
                                 .foregroundColor(.sumiPersimmon)
@@ -145,7 +147,7 @@ struct PathwayNode: View {
     }
     
     var isMilestone: Bool {
-        day == 1 || day == totalDays || day % 7 == 0 || day == completedDays + 1
+        day == 1 || day == totalDays || day % 7 == 0 || isCurrent
     }
     
     var milestoneLabel: String {

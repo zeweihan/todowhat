@@ -4,7 +4,6 @@ struct PathwayDayDetailView: View {
     let day: Int
     @Environment(\.dismiss) private var dismiss
     
-    // In a real app, you would fetch this by the specific `day` parameter
     let passageCitations = "The Gateless Gate, Case 4"
     let passageText = "Wakuan complained when he saw a picture of bearded Bodhidharma, 'Why hasn't that fellow a beard?'"
     let aiPrompt = "If Bodhidharma has no beard, what face is he showing the world right now?"
@@ -14,80 +13,163 @@ struct PathwayDayDetailView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.washi.ignoresSafeArea()
+                Color.sumiBackground.ignoresSafeArea()
                 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: Space.xl) {
-                        
-                        // Passage Review
-                        VStack(alignment: .leading, spacing: Space.sm) {
-                            Text(passageCitations)
-                                .font(.custom("SF Mono", size: 13))
-                                .foregroundColor(.sumi40)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: Space.xxl) {
+                        // Passage Card
+                        VStack(alignment: .leading, spacing: Space.lg) {
+                            HStack {
+                                Text(passageCitations.uppercased())
+                                    .sumiTextStyle(.label)
+                                    .foregroundColor(.sumiQuaternaryText)
+                                Spacer()
+                                DayBadge(day: day)
+                            }
                             
                             Text(passageText)
-                                .font(.custom("New York", size: 20))
+                                .sumiTextStyle(.passage)
+                                .foregroundColor(.sumiPrimaryText)
                                 .lineSpacing(8)
-                                .foregroundColor(.sumiInk)
                         }
+                        .padding(Space.lg)
+                        .sumiCard(style: .elevated)
                         
-                        Divider().background(Color.sumi08)
-                        
-                        // Reflection Log
-                        VStack(alignment: .leading, spacing: Space.lg) {
-                            
+                        // Dialogue Flow
+                        VStack(alignment: .leading, spacing: Space.xl) {
                             // Socratic Prompt
-                            HStack(alignment: .top, spacing: Space.sm) {
-                                Image(systemName: "questionmark.bubble")
-                                    .foregroundColor(.sumi40)
-                                    .padding(.top, 4)
-                                
-                                Text(aiPrompt)
-                                    .font(.custom("New York", size: 18))
-                                    .lineSpacing(8)
-                                    .foregroundColor(.sumiInk)
-                            }
+                            DialogueCard(role: .prompt, text: aiPrompt)
                             
-                            // User
-                            Text(userReflection)
-                                .font(.system(size: 15))
-                                .foregroundColor(.sumi80)
-                                .padding(.leading, Space.xl)
-                                .overlay(
-                                    Rectangle()
-                                        .fill(Color.sumi08)
-                                        .frame(width: 2),
-                                    alignment: .leading
-                                )
+                            // User Reflection
+                            DialogueCard(role: .user, text: userReflection)
                             
-                            // AI
-                            VStack(alignment: .leading, spacing: Space.sm) {
-                                Text("Sage")
-                                    .font(.custom("SF Mono", size: 11))
-                                    .foregroundColor(.sumi40)
-                                
-                                Text(aiResponse)
-                                    .font(.custom("New York", size: 18))
-                                    .lineSpacing(8)
-                                    .foregroundColor(.sumiInk)
-                            }
-                            .padding(.leading, Space.xl)
+                            // AI Response
+                            DialogueCard(role: .sage, text: aiResponse)
                         }
                     }
-                    .padding(Space.lg)
+                    .padding(.horizontal, Space.screenEdge)
+                    .padding(.vertical, Space.xxl)
                 }
             }
-            .navigationTitle("Day \(day) Record")
+            .navigationTitle("Day \(day)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Close") {
-                        dismiss()
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.sumiSecondaryText)
+                            .frame(width: 32, height: 32)
+                            .background(Color.sumiCardSurface)
+                            .cornerRadius(Radius.lg)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: Radius.lg)
+                                    .stroke(Color.sumiBorder, lineWidth: 1)
+                            )
                     }
-                    .foregroundColor(.sumiInk)
                 }
             }
         }
+    }
+}
+
+enum DialogueRole {
+    case prompt
+    case user
+    case sage
+}
+
+struct DialogueCard: View {
+    let role: DialogueRole
+    let text: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: Space.md) {
+            // Avatar / Indicator
+            ZStack {
+                switch role {
+                case .prompt:
+                    Circle()
+                        .fill(Color.sumiPersimmonMuted)
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "questionmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.sumiPersimmon)
+                case .user:
+                    Circle()
+                        .fill(Color.sumiCardSurfaceSecondary)
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "person")
+                        .font(.system(size: 14))
+                        .foregroundColor(.sumiSecondaryText)
+                case .sage:
+                    Circle()
+                        .fill(Color.sumiMatchaMuted)
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 14))
+                        .foregroundColor(.sumiMatcha)
+                }
+            }
+            
+            VStack(alignment: .leading, spacing: Space.xs) {
+                Text(roleLabel)
+                    .sumiTextStyle(.caption)
+                    .foregroundColor(roleColor)
+                
+                Text(text)
+                    .sumiTextStyle(role == .sage ? .title3 : .bodyLarge)
+                    .foregroundColor(.sumiPrimaryText)
+                    .lineSpacing(6)
+            }
+            
+            Spacer()
+        }
+        .padding(Space.lg)
+        .background(roleBackground)
+        .cornerRadius(Radius.xl)
+        .overlay(
+            RoundedRectangle(cornerRadius: Radius.xl)
+                .stroke(role == .sage ? Color.sumiMatcha.opacity(0.15) : Color.clear, lineWidth: 1)
+        )
+    }
+    
+    var roleLabel: String {
+        switch role {
+        case .prompt: return "Socratic Prompt"
+        case .user: return "Your Reflection"
+        case .sage: return "Sage"
+        }
+    }
+    
+    var roleColor: Color {
+        switch role {
+        case .prompt: return .sumiPersimmon
+        case .user: return .sumiTertiaryText
+        case .sage: return .sumiMatcha
+        }
+    }
+    
+    var roleBackground: Color {
+        switch role {
+        case .prompt: return .sumiCardSurface
+        case .user: return .sumiCardSurfaceSecondary
+        case .sage: return .sumiCardSurface
+        }
+    }
+}
+
+struct DayBadge: View {
+    let day: Int
+    
+    var body: some View {
+        Text("Day \(day)")
+            .sumiTextStyle(.caption)
+            .foregroundColor(.sumiSecondaryText)
+            .padding(.horizontal, Space.md)
+            .padding(.vertical, Space.xs)
+            .background(Color.sumiCardSurfaceSecondary)
+            .cornerRadius(Radius.pill)
     }
 }
 

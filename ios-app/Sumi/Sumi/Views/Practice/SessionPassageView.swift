@@ -3,8 +3,8 @@ import SwiftUI
 struct SessionPassageView: View {
     @State private var textBlocksOpacity: [Double] = [0, 0, 0, 0]
     @State private var audioProgress: Double = 0.0
+    @State private var isPlaying = false
     
-    // In a real app, this data is passed down
     let passageCitations = "The Gateless Gate, Case 4"
     let passageText = "Wakuan complained when he saw a picture of bearded Bodhidharma, 'Why hasn't that fellow a beard?'"
     let modernReading = "Why do we cling to labels and forms? The essence of what we are looking for has no specific shape."
@@ -13,88 +13,123 @@ struct SessionPassageView: View {
     
     var body: some View {
         ZStack {
-            Color.washi.ignoresSafeArea()
+            Color.sumiBackground.ignoresSafeArea()
             
-            VStack {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: Space.lg) {
-                        
-                        Text(passageCitations)
-                            .font(.custom("SF Mono", size: 13))
-                            .foregroundColor(.sumi40)
+            VStack(spacing: 0) {
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: Space.xxl) {
+                        // Citation
+                        Text(passageCitations.uppercased())
+                            .sumiTextStyle(.label)
+                            .foregroundColor(.sumiQuaternaryText)
                             .opacity(textBlocksOpacity[0])
                         
+                        // Passage text
                         Text(passageText)
-                            .font(.custom("New York", size: 20))
-                            .lineSpacing(12) // 32pt total line height approx
-                            .foregroundColor(.sumiInk)
+                            .sumiTextStyle(.passage)
+                            .foregroundColor(.sumiPrimaryText)
+                            .lineSpacing(10)
                             .opacity(textBlocksOpacity[1])
-                            .offset(y: textBlocksOpacity[1] == 1 ? 0 : 8)
+                            .offset(y: textBlocksOpacity[1] == 1 ? 0 : 10)
                         
-                        Divider().background(Color.sumi08)
-                            .opacity(textBlocksOpacity[2])
+                        // Divider with ornament
+                        HStack(spacing: Space.md) {
+                            SumiDivider()
+                            Image(systemName: "circle.fill")
+                                .font(.system(size: 4))
+                                .foregroundColor(.sumiDivider)
+                            SumiDivider()
+                        }
+                        .opacity(textBlocksOpacity[2])
                         
-                        Text(modernReading)
-                            .font(.system(size: 15))
-                            .lineSpacing(7) // 22pt total line height approx
-                            .foregroundColor(.sumi80)
-                            .opacity(textBlocksOpacity[3])
-                            .offset(y: textBlocksOpacity[3] == 1 ? 0 : 8)
+                        // Modern reading
+                        VStack(alignment: .leading, spacing: Space.md) {
+                            Text("Modern Reading")
+                                .sumiTextStyle(.label)
+                                .foregroundColor(.sumiQuaternaryText)
                             
+                            Text(modernReading)
+                                .sumiTextStyle(.bodyLarge)
+                                .foregroundColor(.sumiSecondaryText)
+                                .lineSpacing(6)
+                        }
+                        .opacity(textBlocksOpacity[3])
+                        .offset(y: textBlocksOpacity[3] == 1 ? 0 : 10)
                     }
-                    .padding(Space.lg)
-                    // The text line lengths are restricted on iPad/Mac but fine on iPhone
+                    .padding(.horizontal, Space.screenEdge)
+                    .padding(.top, Space.xxl)
+                    .padding(.bottom, Space.xxl)
                     .frame(maxWidth: 680, alignment: .leading)
                 }
                 
                 // Audio Player & Continue Footer
-                VStack(spacing: Space.md) {
-                    HStack(spacing: Space.md) {
+                VStack(spacing: Space.lg) {
+                    // Audio player bar
+                    HStack(spacing: Space.lg) {
                         Button(action: {
-                            // Toggle play/pause mock
-                            withAnimation {
-                                audioProgress = audioProgress > 0 ? 0 : 1.0
+                            isPlaying.toggle()
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                audioProgress = isPlaying ? 0.3 : 0.0
                             }
                         }) {
-                            Image(systemName: audioProgress > 0 ? "pause.circle.fill" : "play.circle.fill")
-                                .font(.system(size: 40))
-                                .foregroundColor(.sumiInk)
-                        }
-                        
-                        // Progress bar filling with matcha
-                        GeometryReader { geometry in
-                            ZStack(alignment: .leading) {
-                                Capsule()
-                                    .fill(Color.matchaLight)
-                                    .frame(height: 4)
+                            ZStack {
+                                Circle()
+                                    .fill(Color.sumiCardSurface)
+                                    .frame(width: 48, height: 48)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.sumiBorder, lineWidth: 1)
+                                    )
                                 
-                                Capsule()
-                                    .fill(Color.matcha)
-                                    .frame(width: geometry.size.width * CGFloat(audioProgress), height: 4)
+                                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.sumiPrimaryText)
                             }
                         }
-                        .frame(height: 40)
+                        
+                        VStack(alignment: .leading, spacing: Space.sm) {
+                            Text(isPlaying ? "Playing audio introduction..." : "Audio introduction")
+                                .sumiTextStyle(.caption)
+                                .foregroundColor(.sumiTertiaryText)
+                            
+                            GeometryReader { geometry in
+                                ZStack(alignment: .leading) {
+                                    Capsule()
+                                        .fill(Color.sumiSand.opacity(0.3))
+                                        .frame(height: 3)
+                                    
+                                    Capsule()
+                                        .fill(Color.sumiPersimmon)
+                                        .frame(width: geometry.size.width * CGFloat(audioProgress), height: 3)
+                                }
+                            }
+                            .frame(height: 3)
+                        }
+                        
+                        Text("3:24")
+                            .sumiTextStyle(.caption)
+                            .foregroundColor(.sumiTertiaryText)
+                            .monospacedDigit()
                     }
+                    .padding(Space.lg)
+                    .sumiCard(style: .filled)
                     
                     Button(action: onContinue) {
-                        Text("Continue to Dialogue")
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(.washi)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(Color.persimmon)
-                            .cornerRadius(14)
+                        HStack(spacing: Space.sm) {
+                            Text("Continue to Dialogue")
+                            Image(systemName: "arrow.right")
+                        }
                     }
+                    .buttonStyle(SumiPrimaryButtonStyle())
                 }
-                .padding(.horizontal, Space.lg)
-                .padding(.bottom, Space.xl)
+                .padding(.horizontal, Space.screenEdge)
+                .padding(.bottom, Space.xxl)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            // Ink wash reveal effect
             for (index, _) in textBlocksOpacity.enumerated() {
-                withAnimation(.easeOut(duration: 0.6).delay(Double(index) * 0.15)) {
+                withAnimation(.easeOut(duration: 0.7).delay(Double(index) * 0.2)) {
                     textBlocksOpacity[index] = 1.0
                 }
             }

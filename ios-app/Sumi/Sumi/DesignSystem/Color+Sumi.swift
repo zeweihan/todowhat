@@ -38,33 +38,44 @@ extension Color {
 
 // MARK: - SumiDay Brand Colors
 extension Color {
-    /// Screen background. Light: Washi (#F2EDE4), Dark: Sumi Ink (#1A1614)
+    // MARK: Backgrounds (Muted postal washi layers)
     static let sumiBackground = Color(light: "#F2EDE4", dark: "#1A1614")
+    static let sumiBackgroundSecondary = Color(light: "#EBE7DE", dark: "#231F1B")
+    static let sumiBackgroundTertiary = Color(light: "#E5E1D7", dark: "#2C2621")
     
-    /// Card surface. Light: White, Dark: Washi Dark (#2A2420)
+    // MARK: Card Surfaces (Layered elements for card-based design)
     static let sumiCardSurface = Color(light: "#FFFFFF", dark: "#2A2420")
+    static let sumiCardSurfaceSecondary = Color(light: "#FAF8F4", dark: "#332C27")
+    static let sumiCardSurfaceTertiary = Color(light: "#F5F2EC", dark: "#3A332D")
+    static let sumiCardSurfaceElevated = Color(light: "#FFFFFF", dark: "#35302A")
     
-    /// Primary text. Light: Sumi Ink (#1A1614), Dark: Washi (#F2EDE4)
+    // MARK: Text (Monochromatic ink scale)
     static let sumiPrimaryText = Color(light: "#1A1614", dark: "#F2EDE4")
+    static let sumiSecondaryText = Color(light: "#5A544D", dark: "#B5ADA3")
+    static let sumiTertiaryText = Color(light: "#9A938A", dark: "#8C857B")
+    static let sumiQuaternaryText = Color(light: "#B5ADA3", dark: "#6A645C")
     
-    /// Secondary text.
-    static let sumiSecondaryText = Color(light: "#1A1614CC", dark: "#F2EDE4CC")
+    // MARK: Dividers and borders
+    static let sumiDivider = Color(light: "#1A16140D", dark: "#F2EDE40D")
+    static let sumiBorder = Color(light: "#1A16140F", dark: "#F2EDE40F")
+    static let sumiBorderStrong = Color(light: "#1A16141A", dark: "#F2EDE41A")
     
-    /// Tertiary text.
-    static let sumiTertiaryText = Color(light: "#1A161466", dark: "#F2EDE466")
-    
-    /// Dividers and hairlines.
-    static let sumiDivider = Color(light: "#1A161414", dark: "#F2EDE414")
-    
-    /// Primary action and positive states. Matcha.
+    // MARK: Accent colors (Used sparingly)
     static let sumiMatcha = Color(light: "#6B8F71", dark: "#7FA882")
+    static let sumiMatchaLight = Color(light: "#6B8F711A", dark: "#7FA8821A")
+    static let sumiMatchaMuted = Color(light: "#E8F0E9", dark: "#2A3D2C")
     
-    /// Matcha Light (15% opacity overlay for badges/progress).
-    static let sumiMatchaLight = Color(light: "#6B8F7126", dark: "#7FA88226")
-    
-    /// Persimmon (Use sparingly! Ink mark / notifications / primary button).
     static let sumiPersimmon = Color(light: "#C65D2A", dark: "#D4703A")
-    
-    /// Persimmon overlay for button pressed states.
     static let sumiPersimmonLight = Color(light: "#C65D2A1A", dark: "#D4703A1A")
+    static let sumiPersimmonMuted = Color(light: "#F5E8E0", dark: "#4A2A1A")
+    
+    // MARK: Muted postal palette (Monochromatic warmth)
+    static let sumiStone = Color(light: "#8C857B", dark: "#A69E93")
+    static let sumiSand = Color(light: "#D9D4CA", dark: "#5A544D")
+    static let sumiWarmGray = Color(light: "#B5ADA3", dark: "#8C857B")
+    static let sumiParchment = Color(light: "#F7F5F0", dark: "#2E2822")
+    static let sumiClay = Color(light: "#C4BDB3", dark: "#7A7369")
+    
+    // MARK: Shadow
+    static let sumiShadow = Color(light: "#1A1614", dark: "#000000")
 }

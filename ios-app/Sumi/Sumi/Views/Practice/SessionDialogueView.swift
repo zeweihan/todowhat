@@ -3,9 +3,8 @@ import SwiftUI
 struct SessionDialogueView: View {
     @State private var reflectionText: String = ""
     @State private var showAIResponse = false
-    @State private var isPulsing = false
+    @State private var textOpacity: Double = 0
     
-    // In a real app, this data is passed down
     let aiPrompt = "If Bodhidharma has no beard, what face is he showing the world right now?"
     let mockAIResponse = "To seek the beard is to miss the face. To seek the face is to miss the man. Sit with the question itself."
     
@@ -13,100 +12,142 @@ struct SessionDialogueView: View {
     
     var body: some View {
         ZStack {
-            Color.washi.ignoresSafeArea()
+            Color.sumiBackground.ignoresSafeArea()
             
-            VStack {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: Space.lg) {
-                        
-                        // Socratic Prompt
-                        HStack(alignment: .top, spacing: Space.sm) {
-                            Image(systemName: "questionmark.bubble")
-                                .foregroundColor(.sumi40)
-                                .padding(.top, 4)
+            VStack(spacing: 0) {
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: Space.xxl) {
+                        // Prompt Card
+                        VStack(alignment: .leading, spacing: Space.lg) {
+                            HStack(spacing: Space.sm) {
+                                Image(systemName: "quote.opening")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.sumiPersimmon)
+                                Text("Socratic Prompt")
+                                    .sumiTextStyle(.label)
+                                    .foregroundColor(.sumiPersimmon)
+                            }
                             
                             Text(aiPrompt)
-                                .font(.custom("New York", size: 20))
-                                .lineSpacing(12)
-                                .foregroundColor(.sumiInk)
+                                .sumiTextStyle(.title3)
+                                .foregroundColor(.sumiPrimaryText)
+                                .lineSpacing(8)
                         }
+                        .padding(Space.lg)
+                        .sumiCard(style: .filled)
+                        .opacity(textOpacity)
                         
                         // User Reflection
                         if !showAIResponse {
-                            TextField("Your reflection...", text: $reflectionText, axis: .vertical)
-                                .font(.system(size: 15))
-                                .foregroundColor(.sumiInk)
-                                .lineLimit(5...10)
-                                .padding()
-                                .background(Color.washiDark.opacity(0.05))
-                                .cornerRadius(12)
+                            VStack(alignment: .leading, spacing: Space.md) {
+                                Text("Your Reflection")
+                                    .sumiTextStyle(.label)
+                                    .foregroundColor(.sumiTertiaryText)
+                                
+                                TextEditor(text: $reflectionText)
+                                    .sumiTextStyle(.bodyLarge)
+                                    .foregroundColor(.sumiPrimaryText)
+                                    .scrollContentBackground(.hidden)
+                                    .frame(minHeight: 120, maxHeight: 200)
+                                    .padding(Space.md)
+                                    .background(Color.sumiCardSurfaceSecondary)
+                                    .cornerRadius(Radius.lg)
+                            }
+                            .opacity(textOpacity)
                         } else {
-                            Text(reflectionText)
-                                .font(.system(size: 15))
-                                .foregroundColor(.sumi80)
-                                .padding(.leading, Space.xl)
-                                .overlay(
-                                    Rectangle()
-                                        .fill(Color.sumi08)
-                                        .frame(width: 2),
-                                    alignment: .leading
-                                )
+                            // Submitted reflection
+                            VStack(alignment: .leading, spacing: Space.md) {
+                                HStack(spacing: Space.sm) {
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.sumiTertiaryText)
+                                    Text("Your Reflection")
+                                        .sumiTextStyle(.caption)
+                                        .foregroundColor(.sumiTertiaryText)
+                                }
+                                
+                                Text(reflectionText)
+                                    .sumiTextStyle(.bodyLarge)
+                                    .foregroundColor(.sumiSecondaryText)
+                                    .lineSpacing(6)
+                                    .padding(.leading, Space.lg)
+                                    .overlay(
+                                        Rectangle()
+                                            .fill(Color.sumiPersimmon.opacity(0.2))
+                                            .frame(width: 3),
+                                        alignment: .leading
+                                    )
+                            }
+                            .padding(Space.lg)
+                            .sumiCard(style: .default)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
                         
                         // AI Response
                         if showAIResponse {
-                            VStack(alignment: .leading, spacing: Space.md) {
-                                Divider().background(Color.sumi08)
+                            VStack(alignment: .leading, spacing: Space.lg) {
+                                HStack(spacing: Space.sm) {
+                                    Image(systemName: "sparkles")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.sumiMatcha)
+                                    Text("Sage")
+                                        .sumiTextStyle(.caption)
+                                        .foregroundColor(.sumiMatcha)
+                                }
                                 
                                 Text(mockAIResponse)
-                                    .font(.custom("New York", size: 20))
-                                    .lineSpacing(12)
-                                    .foregroundColor(.sumiInk)
-                                    .transition(.opacity) // 900ms deliberate fade occurs via the animation block
+                                    .sumiTextStyle(.title3)
+                                    .foregroundColor(.sumiPrimaryText)
+                                    .lineSpacing(8)
                             }
-                        } else if !reflectionText.isEmpty && showAIResponse == false {
-                            // Waiting pulse dot before submit goes through
-                            // In real app, this triggers during SSE network fetch
+                            .padding(Space.lg)
+                            .sumiCard(style: .elevated)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: Radius.xl)
+                                    .stroke(Color.sumiMatcha.opacity(0.12), lineWidth: 1)
+                            )
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
+                        
+                        Spacer(minLength: Space.xxl)
                     }
-                    .padding(Space.lg)
+                    .padding(.horizontal, Space.screenEdge)
+                    .padding(.top, Space.xxl)
                 }
                 
                 // Footer
-                VStack(spacing: Space.sm) {
+                VStack(spacing: Space.lg) {
                     if !showAIResponse {
                         Button(action: {
-                            // Submitting logic
-                            withAnimation(.spring(dampingFraction: 0.7).speed(0.5)) {
+                            withAnimation(.spring(response: 0.55, dampingFraction: 0.8)) {
                                 showAIResponse = true
                             }
                         }) {
                             Text("Submit Reflection")
-                                .font(.system(size: 17, weight: .semibold))
-                                .foregroundColor(.washi)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 56)
-                                .background(reflectionText.isEmpty ? Color.sumi08 : Color.persimmon)
-                                .cornerRadius(14)
                         }
+                        .buttonStyle(SumiPrimaryButtonStyle())
                         .disabled(reflectionText.isEmpty)
+                        .opacity(reflectionText.isEmpty ? 0.5 : 1.0)
                     } else {
                         Button(action: onFinish) {
-                            Text("Complete Session")
-                                .font(.system(size: 17, weight: .semibold))
-                                .foregroundColor(.washi)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 56)
-                                .background(Color.persimmon)
-                                .cornerRadius(14)
+                            HStack(spacing: Space.sm) {
+                                Text("Complete Session")
+                                Image(systemName: "checkmark")
+                            }
                         }
+                        .buttonStyle(SumiPrimaryButtonStyle())
                     }
                 }
-                .padding(.horizontal, Space.lg)
-                .padding(.bottom, Space.xl)
+                .padding(.horizontal, Space.screenEdge)
+                .padding(.bottom, Space.xxl)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.6)) {
+                textOpacity = 1.0
+            }
+        }
     }
 }
 

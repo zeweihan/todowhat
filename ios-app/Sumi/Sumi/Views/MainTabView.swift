@@ -14,20 +14,47 @@ struct MainTabView: View {
         TabView(selection: $selectedTab) {
             PracticeView()
                 .tabItem {
-                    // Active state will use the fill variant automatically in iOS 17 if available
                     Image(systemName: selectedTab == 0 ? "sun.horizon.fill" : "sun.horizon")
+                        .environment(\.symbolVariants, selectedTab == 0 ? .fill : .none)
                     Text("Practice")
                 }
                 .tag(0)
-                
+            
             PathwayView()
                 .tabItem {
                     Image(systemName: selectedTab == 1 ? "map.fill" : "map")
+                        .environment(\.symbolVariants, selectedTab == 1 ? .fill : .none)
                     Text("Journey")
                 }
                 .tag(1)
+            
+            JournalView()
+                .tabItem {
+                    Image(systemName: selectedTab == 2 ? "book.closed.fill" : "book.closed")
+                        .environment(\.symbolVariants, selectedTab == 2 ? .fill : .none)
+                    Text("Journal")
+                }
+                .tag(2)
         }
-        .tint(Color.persimmon)
+        .tint(Color.sumiPersimmon)
+        .onAppear {
+            // Style the tab bar for a more muted, postal look
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = UIColor(Color.sumiCardSurface)
+            
+            appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color.sumiTertiaryText)
+            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+                .foregroundColor: UIColor(Color.sumiTertiaryText)
+            ]
+            appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.sumiPersimmon)
+            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+                .foregroundColor: UIColor(Color.sumiPersimmon)
+            ]
+            
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
     }
 }
 

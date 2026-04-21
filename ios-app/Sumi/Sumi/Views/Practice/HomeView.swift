@@ -2,8 +2,8 @@ import SwiftUI
 
 struct HomeView: View {
     @State private var showingPathSelection = false
+    @State private var showContent = false
     
-    // In a real app, this state would come from the SwiftData / Supabase ViewModel
     let currentPathTitle = "Zen: The Gateless Gate"
     let currentDay = 4
     let totalDays = 30
@@ -15,146 +15,270 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.washi.ignoresSafeArea()
+                Color.sumiBackground.ignoresSafeArea()
                 
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     VStack(spacing: Space.section) {
-                        
-                        // Header: Stats
-                        HStack(spacing: Space.lg) {
-                            StreakCounter(streak: currentStreak)
-                            PractitionerBadge(level: practitionerLevel)
-                            Spacer()
-                        }
-                        .padding(.horizontal, Space.lg)
-                        .padding(.top, Space.md)
-                        
-                        // Current Path Label (with switch button)
-                        VStack(spacing: Space.sm) {
-                            Button(action: {
-                                showingPathSelection = true
-                            }) {
-                                HStack(spacing: Space.xs) {
-                                    Text(currentPathTitle)
-                                        .font(.system(size: 15, weight: .medium))
-                                        .foregroundColor(.sumi80)
-                                    Image(systemName: "chevron.up.chevron.down")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.sumi40)
-                                }
+                        // Custom Header
+                        HStack {
+                            VStack(alignment: .leading, spacing: Space.xxs) {
+                                Text(greeting())
+                                    .sumiTextStyle(.subheadline)
+                                    .foregroundColor(.sumiTertiaryText)
+                                Text("Today")
+                                    .sumiTextStyle(.title2)
+                                    .foregroundColor(.sumiPrimaryText)
                             }
                             
-                            Text("Day \(currentDay) of \(totalDays)")
-                                .font(.custom("New York", size: 34))
-                                .foregroundColor(.sumiInk)
+                            Spacer()
+                            
+                            NavigationLink(destination: SettingsView()) {
+                                Image(systemName: "gearshape")
+                                    .font(.system(size: 18, weight: .medium))
+                                    .foregroundColor(.sumiPrimaryText)
+                                    .frame(width: 40, height: 40)
+                                    .background(Color.sumiCardSurface)
+                                    .cornerRadius(Radius.lg)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: Radius.lg)
+                                            .stroke(Color.sumiBorder, lineWidth: 1)
+                                    )
+                            }
                         }
+                        .padding(.horizontal, Space.screenEdge)
+                        .padding(.top, Space.md)
+                        
+                        // Stats Row
+                        HStack(spacing: Space.md) {
+                            StreakPill(streak: currentStreak)
+                            LevelPill(level: practitionerLevel)
+                            Spacer()
+                        }
+                        .padding(.horizontal, Space.screenEdge)
+                        .sumiEntrance(delay: 0.1)
+                        
+                        // Path context
+                        VStack(spacing: Space.sm) {
+                            Button(action: { showingPathSelection = true }) {
+                                HStack(spacing: Space.xs) {
+                                    Text(currentPathTitle)
+                                        .sumiTextStyle(.callout)
+                                        .foregroundColor(.sumiSecondaryText)
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.system(size: 10, weight: .semibold))
+                                        .foregroundColor(.sumiTertiaryText)
+                                }
+                            }
+                            .buttonStyle(SumiGhostButtonStyle())
+                            
+                            Text("Day \(currentDay) of \(totalDays)")
+                                .sumiTextStyle(.largeTitle)
+                                .foregroundColor(.sumiPrimaryText)
+                            
+                            // Progress bar
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    Capsule()
+                                        .fill(Color.sumiSand.opacity(0.4))
+                                        .frame(height: 4)
+                                    
+                                    Capsule()
+                                        .fill(Color.sumiPersimmon)
+                                        .frame(width: geo.size.width * CGFloat(currentDay) / CGFloat(totalDays), height: 4)
+                                }
+                            }
+                            .frame(height: 4)
+                            .padding(.horizontal, Space.screenEdge)
+                            .padding(.top, Space.sm)
+                        }
+                        .sumiEntrance(delay: 0.15)
                         
                         // Today's Passage Card
                         Button(action: onStartSession) {
-                            PassagePreviewCard()
+                            PassagePreviewCard(day: currentDay)
                         }
-                        .buttonStyle(PlainButtonStyle())
-                        .padding(.horizontal, Space.lg)
+                        .buttonStyle(SumiScaleButtonStyle())
+                        .padding(.horizontal, Space.screenEdge)
+                        .sumiEntrance(delay: 0.25)
                         
-                        Spacer()
+                        // Recent reflections teaser (if any)
+                        if currentStreak > 0 {
+                            VStack(alignment: .leading, spacing: Space.md) {
+                                Text("Recent Insights")
+                                    .sumiTextStyle(.label)
+                                    .foregroundColor(.sumiTertiaryText)
+                                    .padding(.horizontal, Space.screenEdge)
+                                
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: Space.md) {
+                                        InsightCard(
+                                            day: 3,
+                                            excerpt: "To seek the beard is to miss the face...",
+                                            date: "Yesterday"
+                                        )
+                                        InsightCard(
+                                            day: 2,
+                                            excerpt: "The mind is like a mirror...",
+                                            date: "2 days ago"
+                                        )
+                                    }
+                                    .padding(.horizontal, Space.screenEdge)
+                                }
+                            }
+                            .sumiEntrance(delay: 0.35)
+                        }
+                        
+                        Spacer(minLength: Space.xxl)
                     }
                 }
             }
-            .navigationTitle("SumiDay")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(destination: SettingsView()) {
-                        Image(systemName: "gearshape")
-                            .foregroundColor(.sumiInk)
-                    }
-                }
-            }
+            .navigationBarHidden(true)
             .sheet(isPresented: $showingPathSelection) {
-                // We reuse the PathSelectionView logic for swapping paths
                 PathSelectionView {
                     showingPathSelection = false
                 }
             }
         }
     }
-}
-
-// Subcomponents
-
-struct StreakCounter: View {
-    let streak: Int
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            HStack(spacing: 4) {
-                Image(systemName: streak > 0 ? "flame.fill" : "flame")
-                    .foregroundColor(streak > 0 ? .persimmon : .sumi40)
-                
-                Text("\(streak)")
-                    .font(.custom("SF Mono", size: 22))
-                    .foregroundColor(streak > 7 ? .persimmon : .sumiInk)
-            }
-            
-            Text("DAY STREAK")
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(.sumi40)
+    func greeting() -> String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12: return "Good morning"
+        case 12..<17: return "Good afternoon"
+        case 17..<22: return "Good evening"
+        default: return "Good night"
         }
     }
 }
 
-struct PractitionerBadge: View {
-    let level: String
+struct StreakPill: View {
+    let streak: Int
     
     var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "seal.fill")
+        HStack(spacing: Space.xs) {
+            Image(systemName: streak > 0 ? "flame.fill" : "flame")
                 .font(.system(size: 14))
-            Text(level)
-                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(streak > 0 ? .sumiPersimmon : .sumiTertiaryText)
+            
+            Text("\(streak)")
+                .sumiTextStyle(.callout)
+                .foregroundColor(.sumiPrimaryText)
         }
-        .foregroundColor(.matcha)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Color.matchaLight)
-        .cornerRadius(10)
+        .padding(.horizontal, Space.md)
+        .padding(.vertical, Space.sm)
+        .background(Color.sumiCardSurface)
+        .cornerRadius(Radius.pill)
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.matcha, lineWidth: 1)
+            Capsule()
+                .stroke(Color.sumiBorder, lineWidth: 1)
         )
     }
 }
 
+struct LevelPill: View {
+    let level: String
+    
+    var body: some View {
+        HStack(spacing: Space.xs) {
+            Image(systemName: "seal.fill")
+                .font(.system(size: 12))
+                .foregroundColor(.sumiMatcha)
+            
+            Text(level)
+                .sumiTextStyle(.caption)
+                .foregroundColor(.sumiMatcha)
+        }
+        .padding(.horizontal, Space.md)
+        .padding(.vertical, Space.sm)
+        .background(Color.sumiMatchaMuted)
+        .cornerRadius(Radius.pill)
+    }
+}
+
 struct PassagePreviewCard: View {
+    let day: Int
+    
     var body: some View {
         VStack(alignment: .leading, spacing: Space.lg) {
-            Text("Case 4")
-                .font(.custom("SF Mono", size: 13))
-                .foregroundColor(.sumi40)
-            
-            Text("Bodhidharma's Empty Hands")
-                .font(.custom("New York", size: 22))
-                .fontWeight(.medium)
-                .foregroundColor(.sumiInk)
-                .lineSpacing(4)
-                .multilineTextAlignment(.leading)
-            
-            Divider()
-                .background(Color.sumi08)
-            
             HStack {
-                Text("Start Practice")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(.sumi80)
+                VStack(alignment: .leading, spacing: Space.xxs) {
+                    Text("CASE \(day)")
+                        .sumiTextStyle(.label)
+                        .foregroundColor(.sumiQuaternaryText)
+                    
+                    Text("Bodhidharma's Empty Hands")
+                        .sumiTextStyle(.title2)
+                        .foregroundColor(.sumiPrimaryText)
+                        .lineLimit(2)
+                }
+                
                 Spacer()
-                Image(systemName: "arrow.right")
-                    .foregroundColor(.persimmon)
+                
+                // Decorative day badge
+                ZStack {
+                    Circle()
+                        .fill(Color.sumiPersimmonMuted)
+                        .frame(width: 48, height: 48)
+                    Text("\(day)")
+                        .sumiTextStyle(.callout)
+                        .foregroundColor(.sumiPersimmon)
+                }
+            }
+            
+            SumiDivider()
+            
+            HStack(spacing: Space.sm) {
+                Image(systemName: "headphones")
+                    .font(.system(size: 14))
+                    .foregroundColor(.sumiTertiaryText)
+                Text("4 min audio · Guided reflection")
+                    .sumiTextStyle(.caption)
+                    .foregroundColor(.sumiTertiaryText)
+                
+                Spacer()
+                
+                HStack(spacing: Space.xs) {
+                    Text("Begin")
+                        .sumiTextStyle(.callout)
+                        .foregroundColor(.sumiPersimmon)
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.sumiPersimmon)
+                }
             }
         }
         .padding(Space.lg)
-        .background(Color(UIColor.systemBackground))
-        .cornerRadius(16)
-        // According to system spec: "flat design — shadows are too decorative" (except maybe light elevation)
+        .sumiCard(style: .elevated)
+    }
+}
+
+struct InsightCard: View {
+    let day: Int
+    let excerpt: String
+    let date: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.md) {
+            HStack {
+                Text("Day \(day)")
+                    .sumiTextStyle(.label)
+                    .foregroundColor(.sumiQuaternaryText)
+                Spacer()
+                Text(date)
+                    .sumiTextStyle(.caption2)
+                    .foregroundColor(.sumiQuaternaryText)
+            }
+            
+            Text("\(excerpt)")
+                .sumiTextStyle(.body)
+                .foregroundColor(.sumiSecondaryText)
+                .lineLimit(3)
+                .multilineTextAlignment(.leading)
+        }
+        .padding(Space.lg)
+        .frame(width: 240, alignment: .leading)
+        .sumiCard(style: .filled)
     }
 }
 

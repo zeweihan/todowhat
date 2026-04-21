@@ -5,28 +5,37 @@ struct PathwayView: View {
     let totalDays = 30
     
     @State private var selectedDay: Int? = nil
+    @State private var showContent = false
     
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.washi.ignoresSafeArea()
+                Color.sumiBackground.ignoresSafeArea()
                 
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
-                        
-                        Text("The Gateless Gate")
-                            .font(.custom("New York", size: 34))
-                            .foregroundColor(.sumiInk)
-                            .padding(.top, Space.xl)
-                            .padding(.bottom, Space.xxl)
+                        // Header
+                        VStack(spacing: Space.sm) {
+                            Text("The Gateless Gate")
+                                .sumiTextStyle(.hero)
+                                .foregroundColor(.sumiPrimaryText)
                             
-                        // Generate the meandering path
+                            Text("\(completedDays) of \(totalDays) days completed")
+                                .sumiTextStyle(.subheadline)
+                                .foregroundColor(.sumiTertiaryText)
+                        }
+                        .padding(.top, Space.xxxl)
+                        .padding(.bottom, Space.sectionLarge)
+                        .sumiEntrance(delay: 0)
+                        
+                        // Path nodes
                         ForEach((1...totalDays).reversed(), id: \.self) { day in
                             PathwayNode(
                                 day: day,
                                 isCompleted: day <= completedDays,
                                 isCurrent: day == completedDays + 1,
-                                offset: CGFloat(sin(Double(day) * 0.8) * 80) // Meandering effect
+                                offset: CGFloat(sin(Double(day) * 0.8) * 60),
+                                index: totalDays - day
                             )
                             .onTapGesture {
                                 if day <= completedDays {
@@ -34,8 +43,9 @@ struct PathwayView: View {
                                 }
                             }
                         }
+                        
+                        Spacer(minLength: 100)
                     }
-                    .padding(.bottom, 100)
                 }
             }
             .navigationBarHidden(true)
@@ -58,52 +68,114 @@ struct PathwayNode: View {
     let isCompleted: Bool
     let isCurrent: Bool
     let offset: CGFloat
+    let index: Int
     
     var body: some View {
         VStack(spacing: 0) {
-            
-            // The connecting line
+            // Connecting line
             if day < 30 {
                 Rectangle()
-                    .fill(isCompleted ? Color.sumi80 : Color.sumi08)
-                    .frame(width: 2, height: 60)
+                    .fill(lineColor)
+                    .frame(width: isCompleted ? 3 : 2, height: 48)
                     .offset(x: offset)
             }
             
-            // The node
-            ZStack {
-                Circle()
-                    .fill(isCompleted ? Color.sumiInk : (isCurrent ? Color.persimmon : Color.washiDark.opacity(0.1)))
-                    .frame(width: 50, height: 50)
+            // Node
+            HStack(spacing: 0) {
+                Spacer()
                 
-                if isCompleted {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.washi)
-                } else if isCurrent {
-                    Text("\(day)")
-                        .font(.custom("SF Mono", size: 16))
-                        .foregroundColor(.washi)
-                } else {
-                    Text("\(day)")
-                        .font(.custom("SF Mono", size: 16))
-                        .foregroundColor(.sumi40)
-                }
-            }
-            .offset(x: offset)
-            .overlay(
-                // Optional label for milestone days
-                Group {
-                    if day == 1 || day % 7 == 0 {
-                        Text("Day \(day)")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(isCompleted ? .sumiInk : .sumi40)
-                            .offset(x: offset + 60)
+                ZStack {
+                    // Glow for current node
+                    if isCurrent {
+                        Circle()
+                            .fill(Color.sumiPersimmon.opacity(0.15))
+                            .frame(width: 64, height: 64)
+                            .scaleEffect(1.0)
+                            .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: isCurrent)
+                    }
+                    
+                    Circle()
+                        .fill(nodeFill)
+                        .frame(width: nodeSize, height: nodeSize)
+                        .sumiShadow(nodeShadow)
+                    
+                    if isCompleted {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.washi)
+                    } else if isCurrent {
+                        Text("\(day)")
+                            .sumiTextStyle(.callout)
+                            .foregroundColor(.washi)
+                    } else {
+                        Text("\(day)")
+                            .sumiTextStyle(.subheadline)
+                            .foregroundColor(.sumiTertiaryText)
                     }
                 }
-                , alignment: .trailing
-            )
+                
+                // Milestone label
+                if isMilestone {
+                    HStack(spacing: Space.sm) {
+                        Text(milestoneLabel)
+                            .sumiTextStyle(.caption)
+                            .foregroundColor(isCompleted ? .sumiPrimaryText : .sumiTertiaryText)
+                        
+                        if day == completedDays + 1 {
+                            Text("Current")
+                                .sumiTextStyle(.caption2)
+                                .foregroundColor(.sumiPersimmon)
+                                .padding(.horizontal, Space.sm)
+                                .padding(.vertical, Space.xxs)
+                                .background(Color.sumiPersimmonMuted)
+                                .cornerRadius(Radius.pill)
+                        }
+                    }
+                    .padding(.leading, Space.lg)
+                    .frame(width: 140, alignment: .leading)
+                } else {
+                    Spacer().frame(width: 140)
+                }
+                
+                Spacer()
+            }
+            .offset(x: offset)
         }
+        .sumiStaggered(index: index, baseDelay: 0.05)
+    }
+    
+    var isMilestone: Bool {
+        day == 1 || day == totalDays || day % 7 == 0 || day == completedDays + 1
+    }
+    
+    var milestoneLabel: String {
+        if day == 1 { return "Start" }
+        if day == totalDays { return "Complete" }
+        return "Week \(day / 7)"
+    }
+    
+    var lineColor: Color {
+        if isCompleted { return .sumiInk }
+        if isCurrent { return .sumiPersimmon.opacity(0.4) }
+        return .sumiDivider
+    }
+    
+    var nodeFill: Color {
+        if isCompleted { return .sumiInk }
+        if isCurrent { return .sumiPersimmon }
+        return .sumiCardSurface
+    }
+    
+    var nodeSize: CGFloat {
+        if isCurrent { return 48 }
+        if isCompleted { return 40 }
+        return 36
+    }
+    
+    var nodeShadow: ShadowStyle {
+        if isCurrent { return SumiShadow.medium }
+        if isCompleted { return SumiShadow.small }
+        return SumiShadow.small
     }
 }
 

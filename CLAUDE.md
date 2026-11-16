@@ -5,7 +5,7 @@
 
 > This is the project's master working-memory document. Any Claude session working on this project MUST read this file first. Update it whenever a major decision changes.
 
-Last updated: 2026-11-16
+Last updated: 2026-04-16
 Chairman: Mr. Han (hanzewei@gmail.com)
 General Manager: Claude (this conversation is the strategic hub)
 
@@ -204,7 +204,7 @@ App Store release, Product Hunt launch, Apple Editorial pitch, content auto-post
 2. **Chinese name**: deferred to v3 ZH launch. Candidates: 墨日 / 一墨 / 今日墨 / 日课.
 
 ### Resolved
-- **Legal entity — updated 2026-11-16:** BEIJING GONG FU INFORMATION TECHNOLOGY LIMITED（北京公富信息技术有限公司）is the project rights holder and operator under the user-confirmed succession arrangement covering all software projects from inception. The earlier HK-company decision is historical. The existing Apple Developer account remains under its registered HK entity until the platform transfer is completed; this document does not record that transfer as completed.
+- ~~Legal entity~~: HK company (existing), Apple Developer account already under it.
 - ~~Backend~~: Supabase.
 - ~~Brand name~~: **SumiDay**. Domain sumi.day purchased. Bundle com.sumiday.sumi registered.
 - ~~Brand tonality~~: **Option C — Shodo（东方禅意派）**. 2026-04-16. Colors: Sumi Ink `#1A1614` / Washi `#F2EDE4` / Matcha `#6B8F71` / Persimmon `#C65D2A`. Voice: Ceremonial · Contemplative · Grounded · Generous · Unhurried. Execution standard: MUJI/Aesop/Kinfolk 精度，拒绝廉价东方装饰风。详见 brand/tonality-options.md。

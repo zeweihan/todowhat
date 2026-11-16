@@ -1,11 +1,11 @@
 # SumiDay — Terms of Service
 
 **Effective date:** 2026-04-16
-**Last updated:** 2026-11-16
+**Last updated:** 2026-04-16
 
 ---
 
-These Terms of Service ("Terms") govern your use of the SumiDay mobile application ("App") and website at sumi.day ("Site"), operated by **BEIJING GONG FU INFORMATION TECHNOLOGY LIMITED**, a company incorporated in mainland China (Chinese legal name: 北京公富信息技术有限公司; Unified Social Credit Code: 911101053483482356) ("SumiDay", "we", "our", "us"). By downloading, accessing, or using the App or Site, you agree to be bound by these Terms. If you do not agree, do not use the App or Site.
+These Terms of Service ("Terms") govern your use of the SumiDay mobile application ("App") and website at sumi.day ("Site"), operated by **Zhen Shan Mei Grace Limited**, a company incorporated in Hong Kong ("SumiDay", "we", "our", "us"). By downloading, accessing, or using the App or Site, you agree to be bound by these Terms. If you do not agree, do not use the App or Site.
 
 ---
 
@@ -62,7 +62,7 @@ Cancellation takes effect at the end of your current billing period. You will re
 
 **4.1 Source Texts (Public Domain).** SumiDay's content library draws from classical texts that are in the public domain, including but not limited to: the *Analects*, *Tao Te Ching*, *Zhuangzi*, *Dhammapada*, *Meditations* by Marcus Aurelius, and *Letters from a Stoic* by Seneca. These source texts belong to no one and to everyone.
 
-**4.2 SumiDay Content.** All other content in the App — including AI-generated commentary, passage selections and curation, audio introductions, Socratic prompts, sage persona dialogue systems, visual design, typography, illustrations, and the SumiDay brand — is owned by or exclusively licensed to BEIJING GONG FU INFORMATION TECHNOLOGY LIMITED and is protected by copyright and other intellectual property laws. You may not reproduce, distribute, modify, create derivative works from, or commercially exploit any SumiDay content without our prior written consent.
+**4.2 SumiDay Content.** All other content in the App — including AI-generated commentary, passage selections and curation, audio introductions, Socratic prompts, sage persona dialogue systems, visual design, typography, illustrations, and the SumiDay brand — is owned by or exclusively licensed to Zhen Shan Mei Grace Limited and is protected by copyright and other intellectual property laws. You may not reproduce, distribute, modify, create derivative works from, or commercially exploit any SumiDay content without our prior written consent.
 
 **4.3 Your Licence to Use the App.** Subject to your compliance with these Terms and an active subscription (where required), we grant you a limited, personal, non-exclusive, non-transferable, revocable licence to use the App on Apple devices you own or control, solely for your personal, non-commercial daily practice.
 
@@ -191,10 +191,8 @@ These Terms are governed by the laws of the **Hong Kong Special Administrative R
 
 ## 16. Contact Us
 
-**BEIJING GONG FU INFORMATION TECHNOLOGY LIMITED**
-Registered address: Unit 15 within Room 1501, Floor 15, Unit 1, Building 1, No. 1 East Third Ring Middle Road, Chaoyang District, Beijing, China
-
-注册地址：北京市朝阳区东三环中路1号1幢1单元15层1501内15单元
+**Zhen Shan Mei Grace Limited**
+Hong Kong SAR
 
 - General enquiries: **support@sumi.day**
 - Legal / privacy: **legal@sumi.day**

@@ -1,13 +1,13 @@
 # SumiDay — Privacy Policy
 
 **Effective date:** 2026-04-16
-**Last updated:** 2026-04-16
+**Last updated:** 2026-11-16
 
 ---
 
 SumiDay is built on a simple conviction: your inner life is yours. We designed this Privacy Policy — and the product itself — to collect only what we genuinely need to run the service, protect what we do collect, and be transparent about everything.
 
-This Policy applies to the SumiDay mobile application ("App") and website at sumi.day ("Site"), operated by **Zhen Shan Mei Grace Limited**, a company incorporated in Hong Kong ("SumiDay", "we", "our", "us").
+This Policy applies to the SumiDay mobile application ("App") and website at sumi.day ("Site"), operated by **BEIJING GONG FU INFORMATION TECHNOLOGY LIMITED**, a company incorporated in mainland China (Chinese legal name: 北京公富信息技术有限公司; Unified Social Credit Code: 911101053483482356) ("SumiDay", "we", "our", "us").
 
 ---
 
@@ -161,7 +161,7 @@ We may disclose personal data if required to do so by law, court order, or gover
 
 ## 6. International Data Transfers
 
-SumiDay is operated from Hong Kong. Our service providers may process data in the United States, the European Union, and other jurisdictions. Where we transfer data from the EEA/UK to countries that the European Commission has not deemed to provide adequate protection, we use **Standard Contractual Clauses (SCCs)** approved by the European Commission as the transfer mechanism.
+SumiDay's data controller is established in mainland China. Our service providers may process data in the United States, the European Union, and other jurisdictions. Where we transfer data from the EEA/UK to countries that the European Commission has not deemed to provide adequate protection, we use **Standard Contractual Clauses (SCCs)** approved by the European Commission as the transfer mechanism.
 
 ---
 
@@ -229,8 +229,10 @@ We may update this Privacy Policy from time to time. When we make material chang
 ## 11. Contact Us and Data Controller Information
 
 **Data Controller:**
-Zhen Shan Mei Grace Limited
-Hong Kong SAR
+BEIJING GONG FU INFORMATION TECHNOLOGY LIMITED
+Registered address: Unit 15 within Room 1501, Floor 15, Unit 1, Building 1, No. 1 East Third Ring Middle Road, Chaoyang District, Beijing, China
+
+注册地址：北京市朝阳区东三环中路1号1幢1单元15层1501内15单元
 
 **Contact for privacy matters:**
 - Email: **legal@sumi.day**
